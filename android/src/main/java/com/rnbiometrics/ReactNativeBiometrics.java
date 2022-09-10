@@ -35,11 +35,12 @@ import java.util.concurrent.Executors;
  */
 
 public class ReactNativeBiometrics extends ReactContextBaseJavaModule {
-
+    public ReactApplicationContext reactContext;
     protected String biometricKeyAlias = "biometric_key";
 
     public ReactNativeBiometrics(ReactApplicationContext reactContext) {
         super(reactContext);
+        this.reactContext = reactContext;
     }
 
     @Override
@@ -146,6 +147,7 @@ public class ReactNativeBiometrics extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void createSignature(final ReadableMap params, final Promise promise) {
+        final ReactApplicationContext context = this.reactContext;
         if (isCurrentSDKMarshmallowOrLater()) {
             UiThreadUtil.runOnUiThread(
                     new Runnable() {
@@ -166,7 +168,7 @@ public class ReactNativeBiometrics extends ReactContextBaseJavaModule {
 
                                 BiometricPrompt.CryptoObject cryptoObject = new BiometricPrompt.CryptoObject(signature);
 
-                                AuthenticationCallback authCallback = new CreateSignatureCallback(promise, payload);
+                                AuthenticationCallback authCallback = new CreateSignatureCallback(promise, payload, context);
                                 FragmentActivity fragmentActivity = (FragmentActivity) getCurrentActivity();
                                 Executor executor = Executors.newSingleThreadExecutor();
                                 BiometricPrompt biometricPrompt = new BiometricPrompt(fragmentActivity, executor, authCallback);

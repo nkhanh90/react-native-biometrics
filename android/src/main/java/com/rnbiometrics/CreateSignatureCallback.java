@@ -6,19 +6,30 @@ import androidx.annotation.NonNull;
 import androidx.biometric.BiometricPrompt;
 
 import com.facebook.react.bridge.Promise;
+import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeMap;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import java.security.Signature;
 
 public class CreateSignatureCallback extends BiometricPrompt.AuthenticationCallback {
     private Promise promise;
     private String payload;
+    public ReactApplicationContext context;
 
-    public CreateSignatureCallback(Promise promise, String payload) {
+    public CreateSignatureCallback(Promise promise, String payload, ReactApplicationContext context) {
         super();
         this.promise = promise;
         this.payload = payload;
+        this.context = context;
+    }
+
+    @Override
+    public void onAuthenticationFailed() {
+        super.onAuthenticationFailed();
+        this.context.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                .emit("onAndroidBiometricsAuthenticationFailed", "authenticationFailed");
     }
 
     @Override
